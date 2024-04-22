@@ -1,8 +1,8 @@
-import { Client, RequestParams, errors } from "@opensearch-project/opensearch";
-import * as uuid from "uuid";
+import { Document } from "@langchain/core/documents";
 import type { EmbeddingsInterface } from "@langchain/core/embeddings";
 import { VectorStore } from "@langchain/core/vectorstores";
-import { Document } from "@langchain/core/documents";
+import { Client, RequestParams, errors } from "@opensearch-project/opensearch";
+import * as uuid from "uuid";
 
 type OpenSearchEngine = "nmslib" | "hnsw";
 type OpenSearchSpaceType = "l2" | "cosinesimil" | "ip";
@@ -29,6 +29,9 @@ interface VectorSearchOptions {
  */
 export interface OpenSearchClientArgs {
   readonly client: Client;
+  readonly vectorFieldName?: string;
+  readonly textFieldName?: string;
+  readonly metadataFieldName?: string;
   readonly vectorFieldName?: string;
   readonly textFieldName?: string;
   readonly metadataFieldName?: string;
