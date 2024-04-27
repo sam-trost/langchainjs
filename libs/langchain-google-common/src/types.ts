@@ -182,7 +182,12 @@ export interface GeminiContent {
   role: GeminiRole; // Vertex AI requires the role
 }
 
-export interface GeminiTool {
+export type GeminiTool =
+  | GeminiFunctionTool
+  | RetrievalTool
+  | GoogleSearchRetrievalTool;
+
+export interface GeminiFunctionTool {
   functionDeclarations?: GeminiFunctionDeclaration[];
 }
 
@@ -210,6 +215,38 @@ export type GeminiFunctionSchemaType =
   | "boolean"
   | "array"
   | "object";
+
+/**
+ * Defines a retrieval tool that model can call to access external knowledge.
+ */
+export interface RetrievalTool {
+  retrieval: {
+    vertexAiSearch: {
+      datastore: string;
+    };
+
+    /**
+     * Optional. Disable using the result from this tool in detecting grounding
+     * attribution. This does not affect how the result is given to the model for
+     * generation.
+     */
+    disableAttribution?: boolean;
+  };
+}
+
+/**
+ * Tool to retrieve public web data for grounding, powered by Google.
+ */
+export interface GoogleSearchRetrievalTool {
+  googleSearchRetrieval: {
+    /**
+     * Optional. Disable using the result from this tool in detecting grounding
+     * attribution. This does not affect how the result is given to the model for
+     * generation.
+     */
+    disableAttribution?: boolean;
+  };
+}
 
 export interface GeminiGenerationConfig {
   stopSequences?: string[];

@@ -18,7 +18,8 @@ import type {
   GeminiSafetySetting,
   GeminiTool,
   GeminiFunctionDeclaration,
-  GoogleAIModelRequestParams,
+  GoogleAIModelRequestParams,  
+  RetrievalTool
 } from "./types.js";
 import {
   GoogleAbstractedClient,
@@ -335,11 +336,22 @@ export abstract class AbstractGoogleLLMConnection<
     if (this.isStructuredToolArray(tools)) {
       return this.structuredToolsToGeminiTools(tools);
     } else {
-      if (tools.length === 1 && !tools[0].functionDeclarations?.length) {
-        return [];
-      }
-      return tools as GeminiTool[];
+      // validate that the tools are in the correct format
+      return tools.filter(this.isValidGeminiTool);
     }
+  }
+
+  isValidGeminiTool(tool: GeminiTool): boolean {
+    if ("functionDeclarations" in tool) {
+      return (tool.functionDeclarations?.length ?? 0) > 0;
+    } else if ("retrieval" in tool) {
+      const retrievalTool = tool as RetrievalTool;
+      return !!retrievalTool?.retrieval?.vertexAiSearch?.datastore;
+    } else if ("googleSearchRetrieval" in tool) {
+      return true;
+    }
+
+    return false;
   }
 
   formatData(

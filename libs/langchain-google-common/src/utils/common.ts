@@ -72,7 +72,11 @@ export function copyAIModelParamsInto(
           ],
         };
         return toolInGeminiFormat;
-      } else if ("functionDeclarations" in tool) {
+      } else if (
+        "functionDeclarations" in tool ||
+        "googleSearchRetrieval" in tool ||
+        "retrieval" in tool
+      ) {
         return tool;
       } else {
         return null;

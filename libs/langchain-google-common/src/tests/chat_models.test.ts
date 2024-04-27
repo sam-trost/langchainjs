@@ -835,4 +835,78 @@ describe("Mock ChatGoogle", () => {
 
     console.log(JSON.stringify(record?.opts?.data, null, 1));
   });
+
+  test("6. Grounded Search - Google Search", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const record: Record<string, any> = {};
+    const projectId = mockId();
+    const authOptions: MockClientAuthInfo = {
+      record,
+      projectId,
+      resultFile: "chat-6-mock.json",
+    };
+
+    const tools: GeminiTool[] = [
+      {
+        googleSearchRetrieval: {
+          disableAttribution: true,
+        },
+      },
+    ];
+
+    const baseModel = new ChatGoogle({
+      authOptions,
+    });
+    const model = baseModel.bind({
+      tools,
+    });
+
+    const result = await model.invoke("What?");
+
+    console.log(JSON.stringify(record, null, 1));
+
+    expect(result).toBeDefined();
+    expect(record.opts.data.tools).toBeDefined();
+    expect(record.opts.data.tools.length).toEqual(1);
+    expect(record.opts.data.tools[0].googleSearchRetrieval).toBeDefined();
+    expect(
+      record.opts.data.tools[0].googleSearchRetrieval.disableAttribution
+    ).toBe(true);
+  });
+
+  test("6. Grounded Search - Vector Search", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const record: Record<string, any> = {};
+    const projectId = mockId();
+    const authOptions: MockClientAuthInfo = {
+      record,
+      projectId,
+      resultFile: "chat-6-mock.json",
+    };
+
+    const tools: GeminiTool[] = [
+      {
+        retrieval: {
+          vertexAiSearch: { datastore: "mock-datastore" },
+          disableAttribution: false,
+        },
+      },
+    ];
+
+    const baseModel = new ChatGoogle({
+      authOptions,
+    });
+    const model = baseModel.bind({
+      tools,
+    });
+
+    const result = await model.invoke("What?");
+
+    console.log(JSON.stringify(record, null, 1));
+
+    expect(result).toBeDefined();
+    expect(record.opts.data.tools).toBeDefined();
+    expect(record.opts.data.tools.length).toEqual(1);
+    expect(record.opts.data.tools[0]).toBe(tools[0]);
+  });
 });
